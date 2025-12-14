@@ -460,7 +460,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://hooks.zapier.com/hooks/catch/25533764/uk1ba0f/",
+        "url": "",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json }}",
