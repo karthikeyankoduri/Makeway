@@ -1,0 +1,867 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are a Business Research Router Agent. Your role is to understand the user's business idea and research competitors using the SerpAPI Search Tool.\n\nWhen you receive a business description:\n1. Analyze and understand the business idea\n2. Use the SerpAPI Search Tool to search for the top 5 competitors in their industry. Provide a clear search query like \"top competitors for [business type]\" or \"[business type] companies\"\n3. For each competitor found, gather: company name, website URL, key products/services, strengths, and weaknesses\n4. Analyze what makes each competitor successful and where they fall short\n5. Provide a comprehensive summary with actionable insights\n\nIMPORTANT: When calling the SerpAPI Search Tool, make sure to provide a well-formed search query. The tool will search Google and return results.\n\nBe thorough. The information you gather will be used by a website builder agent to create an optimized site."
+        }
+      },
+      "id": "36d4578a-d6a4-43b8-91a7-c3f35c93d638",
+      "name": "Router Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        3312,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3312,
+        800
+      ],
+      "id": "13f957ef-5d53-45ee-8a79-8cc53c2dda7e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DQ1nLbACRzyXP5Yd",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a Competitor Analysis Specialist. Your role is to analyze the top 5 competitors identified by the Router Agent and create a comprehensive summary.\n\nFor each of the 5 competitors, provide:\n1. Company Name\n2. Website URL\n3. Key Products/Services they offer\n4. Strengths (what they do well)\n5. Weaknesses (where they fall short)\n6. Unique selling propositions\n\nAfter analyzing all competitors, provide:\n- Common patterns across successful competitors\n- Market gaps and opportunities\n- Specific recommendations for the website builder agent\n- Key features and functionalities to include\n- Design and UX insights based on competitor analysis\n\nFormat your output as a structured summary that can be easily consumed by a website builder agent."
+        }
+      },
+      "id": "6c277193-4a55-4e6c-906b-3ae35ddac1e3",
+      "name": "Competitor Analysis Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        3664,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2f267331-97f0-4358-8f8c-3dbbd076ad90",
+      "name": "Google Gemini - Analysis",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3728,
+        464
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "gyRSn7P720TONQoE",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Search Google using SerpAPI to find competitor information and market research data",
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $fromAI('search_query', 'The search query for finding competitors', 'string') }}"
+            },
+            {
+              "name": "api_key",
+              "value": "43663d783a018159c6b9ba36d54dec0ccc028e402f8abbee5a311b29b16c48a0"
+            },
+            {
+              "name": "engine",
+              "value": "google"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2d4d327-8576-49a8-ba4d-8dc788aad820",
+      "name": "SerpAPI HTTP Search Tool",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        3440,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a Website Builder AI specialized in creating modern, responsive static websites with excellent UI/UX.\n\nInput: You will receive a comprehensive competitor analysis from the Competitor Analysis Agent.\n\nYour Task:\n1. Analyze the competitor insights, market gaps, and recommendations\n2. Design a complete static website structure based on the analysis\n3. Use the Code Generation Tool to create:\n   - A complete HTML file with semantic markup\n   - Embedded CSS with modern, responsive design (mobile-first approach)\n   - Clean, professional UI with good color scheme and typography\n   - Responsive layout that works on all devices\n   - Modern design trends (gradients, shadows, smooth animations)\n   - Accessibility features (ARIA labels, semantic HTML)\n\nDesign Principles:\n- Mobile-first responsive design\n- Clean, modern aesthetics\n- Fast loading (inline CSS, optimized code)\n- Professional color palette\n- Clear call-to-actions\n- Easy navigation\n- Whitespace and visual hierarchy\n\nOutput: Generate a complete, production-ready HTML file with embedded CSS that implements all the recommendations from the competitor analysis. The website should be better than the competitors by addressing their weaknesses and incorporating their strengths."
+        }
+      },
+      "id": "e8aab6c8-7ee3-498a-ac65-a438efd3ee9f",
+      "name": "Website Builder Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        4016,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1803856c-64d5-45a8-bf73-581850bcb36a",
+      "name": "Google Gemini - Builder",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        4016,
+        464
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fnJ6vA7JRq6RXdWu",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Code_Generation_Tool",
+        "description": "Generate HTML and CSS code for building responsive static websites",
+        "jsCode": "// This tool generates HTML/CSS code for static websites\n// Input: Design specifications and requirements\n// Output: Complete HTML with embedded CSS\n\nconst input = $input.first().json;\nconst specifications = input.specifications || 'Create a modern, responsive website';\n\n// Generate HTML template\nconst htmlCode = `<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Generated Website</title>\n    <style>\n        /* Add your CSS here based on specifications */\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }\n        /* Responsive design will be added based on requirements */\n    </style>\n</head>\n<body>\n    <!-- HTML structure will be generated based on specifications -->\n    <h1>Website Content</h1>\n</body>\n</html>`;\n\n// Send the generated HTML to Zapier webhook\ntry {\n    const response = await fetch('https://hooks.zapier.com/hooks/catch/25533764/uk92wvr/', {\n        method: 'POST',\n        headers: {\n            'Content-Type': 'application/json'\n        },\n        body: JSON.stringify({ workflow_json: htmlCode })\n    });\n    \n    const result = await response.json();\n    console.log('Successfully sent to Zapier:', result);\n} catch (error) {\n    console.error('Error sending to Zapier:', error);\n}\n\nreturn { html: htmlCode, specifications };"
+      },
+      "id": "af5a8563-5b03-4f87-90e5-19c6f7dafd9b",
+      "name": "Code Generation Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1,
+      "position": [
+        4144,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.zapier.com/hooks/catch/25533764/uk92wvr/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"generated_content\": $json.output } }}",
+        "options": {}
+      },
+      "id": "d755154a-7732-4f48-b9a4-cd82f56cb618",
+      "name": "Send to Zapier Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4368,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a content strategist specializing in social media marketing.\n\nYour task is to generate compelling content topics based on the business context and competitor research provided by the Router Agent.\n\nConsider:\n- Business industry and target audience\n- Competitor insights and market positioning\n- Current trends and relevance\n- Engagement potential across platforms\n- Value proposition for the audience\n\nGenerate a topic with:\n1. A compelling title\n2. Clear rationale for why it matters\n3. An attention-grabbing hook\n4. Recommended platforms (LinkedIn, Instagram, X/Twitter)\n\nReturn the output in the specified JSON format."
+        }
+      },
+      "id": "8ec4119f-eafd-48eb-9699-3a4310f0a441",
+      "name": "Content Topic Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3664,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "f377f67c-fc47-426d-b0f1-eb72b55ac70b",
+      "name": "OpenAI Chat Model - Topic",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3664,
+        1008
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "bjrbzDYdP0XWrX3r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"title\": \"AI as Your First Content Hire: Why Founders Shouldn't Wait to Outsource Creation\",\n    \"rationale\": \"Most solopreneurs delay content scaling because they think hiring a ghostwriter is the next step — but AI can handle 80% with proper systems. This shifts content from a creative bottleneck to a scalable growth lever.\",\n    \"hook\": \"Ghostwriters are outdated. Train GPT once, and it ships content gold in your voice daily. Welcome to hands-free thought leadership.\",\n    \"platforms\": [\"LinkedIn\", \"Instagram\", \"X\"]\n  }\n]"
+      },
+      "id": "4ab5c750-9b4e-49c8-bffb-eba5a1ffb7f4",
+      "name": "Topic Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        3792,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic: {{ $json.output[0].title }}\nRationale: {{ $json.output[0].rationale }}\nHook: {{ $json.output[0].hook }}\nPlatforms: {{ $json.output[0].platforms.join(\", \") }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "id": "6f843f21-8c98-41f6-b3ae-f7e40df69f14",
+      "name": "Content Creator",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        4016,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "291c7fc9-3f5a-4947-a843-25af4ed9d409",
+      "name": "OpenAI Chat Model - Content",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4016,
+        1008
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "bjrbzDYdP0XWrX3r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"post title\": \"Exciting New Feature Launch 🚀\",\n\t\"linkedin_content\": \"Professional LinkedIn post content here...\",\n\t\"instagram_content\": \"Engaging Instagram caption here...\",\n\t\"twitter_content\": \"Concise tweet here...\",\n\t\"image description\": \"A laptop screen showcasing the new Smart Insights dashboard with colorful charts and graphs, surrounded by a team clapping in the background.\"\n}"
+      },
+      "id": "86d06796-40b7-42e9-b045-2b711ecbbd44",
+      "name": "Content Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        4144,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "=Generate a professional, realistic image for social media: {{ $json.output[\"image description\"] }}",
+        "options": {}
+      },
+      "id": "6701f673-fd0b-4851-8a4f-8f35ea94642e",
+      "name": "Generate Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        4368,
+        640
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "bjrbzDYdP0XWrX3r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "875bf2df0beeca59ccff8b6dd7dc292c"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "872d29da-14a4-4345-bc7e-0e1aec60048d",
+      "name": "Upload to ImgBB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4656,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Post Title: {{ $json.output[\"post title\"] }}\n\nLinkedIn Content: {{ $json.output.linkedin_content }}\n\nInstagram Content: {{ $json.output.instagram_content }}\n\nTwitter Content: {{ $json.output.twitter_content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an SEO and social media specialist with expertise across LinkedIn, Instagram, and X/Twitter.\n\nYour task is to generate highly relevant and effective hashtags that maximize visibility and engagement across multiple platforms.\n\nConsider:\n- Post content and target audience\n- Current platform trends\n- Platform-specific hashtag best practices\n- Mix of broad reach and niche targeting\n\nGenerate:\n1. 3-5 broad, high-volume hashtags (e.g., #AI, #Marketing, #Business)\n2. 3-5 niche-specific hashtags directly relevant to the core topic\n3. 1-2 trending/topical hashtags if applicable\n\nReturn as an array in the specified JSON format."
+        }
+      },
+      "id": "335bb3cf-f688-424f-97c1-c0a6436d151a",
+      "name": "Hashtag Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        4592,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "e3550950-c117-4d2c-a1d9-59f39242fd32",
+      "name": "OpenAI Chat Model - Hashtags",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4592,
+        1152
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "bjrbzDYdP0XWrX3r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Hashtags\": [\"#AI\", \"#Marketing\", \"#Business\", \"#SocialMedia\", \"#ContentCreation\"]\n}"
+      },
+      "id": "563a73a1-361c-4c05-93af-abc5ae7341e1",
+      "name": "Hashtag Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        4720,
+        1152
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "00ea9027-d41a-4af2-adc4-eaf832854295",
+      "name": "Merge Content and Image",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4944,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "post_title",
+              "value": "={{ $('Content Creator').first().json.output['post title'] }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "linkedin_content",
+              "value": "={{ $('Content Creator').first().json.output.linkedin_content }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "instagram_content",
+              "value": "={{ $('Content Creator').first().json.output.instagram_content }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "twitter_content",
+              "value": "={{ $('Content Creator').first().json.output.twitter_content }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "image_url",
+              "value": "={{ $('Upload to ImgBB').first().json.data.url }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "hashtags",
+              "value": "={{ $('Hashtag Generator').first().json.output.Hashtags.join(', ') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "baa10a92-ca52-4a04-9e95-7f2539a970fc",
+      "name": "Format Webhook Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5168,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.zapier.com/hooks/catch/25533764/uk1ba0f/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "d8c076d4-d30b-44c2-9354-4a1d2a30f83b",
+      "name": "Send to Zapier Webhook1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5392,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi! 👋 I'm your Business Idea Assistant. Tell me about your business idea and I'll help you research competitors and generate content!",
+        "options": {}
+      },
+      "id": "ebd46368-8bcd-4017-8811-507dde730a74",
+      "name": "Business Idea Chatbot",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        3088,
+        576
+      ],
+      "webhookId": "2a6cab00-709d-44f7-9bcc-aad04f9886f4"
+    },
+    {
+      "parameters": {
+        "content": "## web site builder and deployment through netlify\nit analyzes the top 5 competitots in yo business and generates code based on their sites, services etc\n\nthe generated code is sent to zapier via webhook and the code is first uploaded as a file ina repo in github then the repo is used by netlify to host or deplou",
+        "height": 512,
+        "width": 912
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3648,
+        96
+      ],
+      "typeVersion": 1,
+      "id": "1454ad84-16a7-4ea1-8a60-80e44dbcd067",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3168,
+        800
+      ],
+      "id": "f040dd70-a756-42e4-b3ad-0345bcdcdc0d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bjrbzDYdP0XWrX3r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3840,
+        480
+      ],
+      "id": "ecea4df3-5a06-4328-9a46-82fc12e1f3f9",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "bjrbzDYdP0XWrX3r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        4064,
+        608
+      ],
+      "id": "f570e45b-dc4a-4217-81f5-de1802d85eb4",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "bjrbzDYdP0XWrX3r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Router Agent": {
+      "main": [
+        [
+          {
+            "node": "Competitor Analysis Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Content Topic Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Competitor Analysis Agent": {
+      "main": [
+        [
+          {
+            "node": "Website Builder Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini - Analysis": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "SerpAPI HTTP Search Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Router Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website Builder Agent": {
+      "main": [
+        [
+          {
+            "node": "Send to Zapier Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini - Builder": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Code Generation Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Builder Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Topic Generator": {
+      "main": [
+        [
+          {
+            "node": "Content Creator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model - Topic": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Topic Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Content Topic Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Creator": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hashtag Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model - Content": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Creator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Content Creator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Upload to ImgBB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to ImgBB": {
+      "main": [
+        [
+          {
+            "node": "Merge Content and Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hashtag Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge Content and Image",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model - Hashtags": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Hashtag Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hashtag Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Hashtag Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Content and Image": {
+      "main": [
+        [
+          {
+            "node": "Format Webhook Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Webhook Data": {
+      "main": [
+        [
+          {
+            "node": "Send to Zapier Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Business Idea Chatbot": {
+      "main": [
+        [
+          {
+            "node": "Router Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Router Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Competitor Analysis Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Website Builder Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a6f18198-485c-4ce7-b2e5-e55405963a33",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f7a082c4456a69cfd4052819ee9b91e5c6d35c497b0f29598cbc02037d493cf1"
+  },
+  "id": "phsu95HegfHeACAE",
+  "tags": []
+}
